@@ -1,14 +1,19 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "node-crud-app",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start:dev": "nodemon --exec ts-node src/index.ts",
+    "start:prod": ""
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "dotenv": "^16.5.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "webpack": "^5.99.7"
   },
   "private": true
 }
