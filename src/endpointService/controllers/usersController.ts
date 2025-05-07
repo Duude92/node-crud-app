@@ -1,6 +1,7 @@
 import { IUser } from '../../shared/models/userModel';
 import { ServerResponse, IncomingMessage } from 'node:http';
 import { EndpointFunctionPair } from '../endpointFunctionPair';
+import { randomUUID } from 'node:crypto';
 
 const users: Array<IUser> = [
   { id: '1', age: 2, hobbies: ['aboba'], username: 'name' } as IUser,
@@ -18,11 +19,18 @@ const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promis
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(users.find(x => x.id === id)));
 };
-const postUser = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
 
+const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<void> => {
+  body.id = randomUUID().toString();
+  users.push(body);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(body));
 };
+
+
 
 export const endpoints: EndpointFunctionPair = {
   'GET': getUsers,
-  'GET/id': getUser
+  'GET/id': getUser,
+  'POST': postUser
 };
