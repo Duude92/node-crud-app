@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start:dev": "nodemon --exec ts-node src/index.ts",
-    "start:prod": ""
+    "start:prod": "",
+    "start:multi": "nodemon --exec ts-node src/loadBalancer.ts"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",
