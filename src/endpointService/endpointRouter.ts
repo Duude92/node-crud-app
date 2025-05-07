@@ -12,5 +12,5 @@ export const handleRoute = (request: IncomingMessage, response: ServerResponse<I
   const endpoint = `${method}${parameter ? '/id' : ''}`;
 
   const fn = endpoints[endpoint];
-  fn(response);
+  fn(response, parameter);
 };

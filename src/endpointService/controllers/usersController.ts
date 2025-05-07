@@ -14,9 +14,9 @@ const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => 
   res.end(JSON.stringify(users));
 };
 
-const getUser = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
+const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(users.find(x => x.id === '1')));
+  res.end(JSON.stringify(users.find(x => x.id === id)));
 };
 const postUser = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
 
