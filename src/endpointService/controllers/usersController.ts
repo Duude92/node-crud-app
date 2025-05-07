@@ -27,22 +27,53 @@ const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Prom
   res.end(JSON.stringify(body));
 };
 
-const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+const findUser = (id: string, res: ServerResponse<IncomingMessage>): IUser => {
   const user = users.find(x => x.id === id);
   if (!user) {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(`User with id ${id} not found.`);
+    responseNotFound(res, id);
+    const error = new Error('User not found!');
+    error.name = 'ENOTFOUND';
+    throw error;
+  }
+  return user;
+};
+
+const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(`User with id ${id} not found.`);
+};
+
+const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+  try {
+    const user = findUser(id, res);
+    const userIdx = users.indexOf(user);
+
+    users.splice(userIdx, 1);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end('User deleted successfully.');
+  } catch {
     return;
   }
-  const userIdx = users.indexOf(user);
-  users.splice(userIdx, 1);
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end('User deleted successfully.');
+};
+
+const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<void> => {
+  try {
+    const user = findUser(id, res);
+    const userIdx = users.indexOf(user);
+
+    body.id = user.id;
+    users[userIdx] = body;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(body));
+  } catch {
+    return;
+  }
 };
 
 export const endpoints: EndpointFunctionPair = {
   'GET': getUsers,
   'GET/id': getUser,
   'POST': postUser,
-  'DELETE/id': deleteUser
+  'DELETE/id': deleteUser,
+  'PUT/id': putUser
 };
