@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { handleRoute } from './endpointRouter';
-import { ApiController } from './endpointFunctionPair';
+import { ApiController } from '../shared/endpointFunctionPair';
 
 export const startServer = (port: number, controller: ApiController) => {
   const server = createServer({}, (req, res) => {

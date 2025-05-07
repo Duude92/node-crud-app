@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'node:http';
-import { ApiController } from './endpointFunctionPair';
+import { ApiController } from '../shared/endpointFunctionPair';
 import { requestBody } from './bodyRequestUtil';
 import { IUser } from '../shared/models/userModel';
 

@@ -1,6 +1,6 @@
 import { isValidUser, IUser } from '../../shared/models/userModel';
 import { ServerResponse, IncomingMessage } from 'node:http';
-import { ApiController } from '../endpointFunctionPair';
+import { ApiController } from '../../shared/endpointFunctionPair';
 import { randomUUID, UUID } from 'node:crypto';
 
 const users: Array<IUser> = [
