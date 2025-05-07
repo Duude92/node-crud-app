@@ -1,22 +1,28 @@
-import {IUser} from "../../shared/models/userModel";
-import {ServerResponse, IncomingMessage} from 'node:http'
+import { IUser } from '../../shared/models/userModel';
+import { ServerResponse, IncomingMessage } from 'node:http';
+import { EndpointFunctionPair } from '../endpointFunctionPair';
 
-// export type EndpointFunctionPair = { [id: string]: (some: string) => Promise<IUser> };
-export type EndpointFunctionPair = { [id: string]: (response: ServerResponse<IncomingMessage>) => void };
+const users: Array<IUser> = [
+  { id: '1', age: 2, hobbies: ['aboba'], username: 'name' } as IUser,
+  { id: '12', age: 23, hobbies: ['aboba1'], username: 'nam1e' } as IUser
+];
+
+
 const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
-    // await provider get users
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    const result = new Array<IUser>();
-    result.push({id: "1", age: 2, hobbies: ["aboba"], username: "name"} as IUser);
-    result.push({id: "12", age: 23, hobbies: ["aboba1"], username: "nam1e"} as IUser);
-    res.end(JSON.stringify(result));
-}
+  // await provider get users
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(users));
+};
 
 const getUser = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({id: "1", age: 2, hobbies: ["aboba"], username: "name"} as IUser));
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(users.find(x => x.id === '1')));
 };
+const postUser = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
+
+};
+
 export const endpoints: EndpointFunctionPair = {
-    "users": getUsers,
-    "users/id": getUser,
-}
+  'GET': getUsers,
+  'GET/id': getUser
+};
