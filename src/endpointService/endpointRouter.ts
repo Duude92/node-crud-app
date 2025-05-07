@@ -1,15 +1,21 @@
 import { IncomingMessage, ServerResponse } from 'node:http';
-import { EndpointFunctionPair } from './endpointFunctionPair';
+import { ApiController } from './endpointFunctionPair';
 import { requestBody } from './bodyRequestUtil';
 import { IUser } from '../shared/models/userModel';
 
-export const handleRoute = async (request: IncomingMessage, response: ServerResponse<IncomingMessage>, endpoints: EndpointFunctionPair) => {
+export const handleRoute = async (request: IncomingMessage, response: ServerResponse<IncomingMessage>, controller: ApiController) => {
   try {
     const method = request.method;
     const reqPath = (request.url as string).split('/');
     reqPath.shift();
     const pathApi = reqPath.shift();
     const controllerPath = reqPath.shift() as string;
+    const endpoints = controller[`${pathApi}/${controllerPath}`];
+    if (!endpoints) {
+      response.writeHead(404, { 'Content-Type': 'application/json' });
+      response.end(`Requested resource is not found.`);
+      return;
+    }
     const id = reqPath.shift() as string;
     let parameter: any;
     const endpoint = `${method}${id ? '/id' : ''}`;

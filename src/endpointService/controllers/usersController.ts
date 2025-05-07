@@ -1,6 +1,6 @@
 import { isValidUser, IUser } from '../../shared/models/userModel';
 import { ServerResponse, IncomingMessage } from 'node:http';
-import { EndpointFunctionPair } from '../endpointFunctionPair';
+import { ApiController } from '../endpointFunctionPair';
 import { randomUUID, UUID } from 'node:crypto';
 
 const users: Array<IUser> = [
@@ -106,10 +106,12 @@ const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: I
   }
 };
 
-export const endpoints: EndpointFunctionPair = {
-  'GET': getUsers,
-  'GET/id': getUser,
-  'POST': postUser,
-  'DELETE/id': deleteUser,
-  'PUT/id': putUser
+export const controller: ApiController = {
+  'api/users': {
+    'GET': getUsers,
+    'GET/id': getUser,
+    'POST': postUser,
+    'DELETE/id': deleteUser,
+    'PUT/id': putUser
+  }
 };
