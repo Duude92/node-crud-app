@@ -1,6 +1,6 @@
-import {startServer} from "./endpointService/serverStartup";
-import dotenv from "dotenv";
-import {endpoints} from "./endpointService/controllers/usersController";
+import { startServer } from './endpointService/serverStartup';
+import dotenv from 'dotenv';
+import { endpoints } from './endpointService/controllers/usersController';
 
 dotenv.config();
 
