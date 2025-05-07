@@ -10,20 +10,22 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
     reqPath.shift();
     const pathApi = reqPath.shift();
     const controllerPath = reqPath.shift() as string;
+    const id = reqPath.shift() as string;
     let parameter: any;
-    let endpoint: string;
-    if (method === 'POST') {
+    const endpoint = `${method}${id ? '/id' : ''}`;
+    // Probably could request body anyway and check if object is exist
+    if (method === 'POST' || method === 'PUT') {
       parameter = await requestBody(request);
-      endpoint = `${method}${parameter.id ? '/id' : ''}`;
-    } else {
-      parameter = /*method === 'POST' ? request.body : */reqPath.shift() as string;
-      endpoint = `${method}${parameter ? '/id' : ''}`;
     }
     // Should contain METHOD{/?{parameter?}}
     const fn = endpoints[endpoint];
-    fn(response, parameter);
-  }
-  catch (error) {
+    const parameters: any[] = [];
+    if (id)
+      parameters.push(id);
+    if (parameter)
+      parameters.push(parameter);
+    fn(response, ...parameters);
+  } catch (error) {
     console.error(error);
   }
 };
