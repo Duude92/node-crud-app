@@ -24,7 +24,7 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
       parameters.push(id);
     if (parameter)
       parameters.push(parameter);
-    fn(response, ...parameters);
+    await fn(response, ...parameters);
   } catch (error) {
     console.error(error);
   }
