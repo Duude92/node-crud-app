@@ -62,7 +62,7 @@ const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Pro
     const userIdx = users.indexOf(user);
 
     users.splice(userIdx, 1);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(204, { 'Content-Type': 'application/json' });
     res.end('User deleted successfully.');
   } catch {
     return;

@@ -3,9 +3,15 @@ import { ServerResponse, IncomingMessage } from 'node:http';
 import { ApiController } from '../../shared/endpointFunctionPair';
 import { randomUUID } from 'node:crypto';
 import * as storageProvider from '../../providers/userStorageProvider';
+import { requestBody } from '../bodyRequestUtil';
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 const contentType = { 'Content-Type': 'application/json' };
+
+function sendEmptyError(res: ServerResponse<IncomingMessage>, result: Response) {
+  res.writeHead(result.status, contentType);
+  res.end();
+}
 
 const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
   // await provider get users
@@ -16,8 +22,7 @@ const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => 
     res.end(JSON.stringify(users));
     return;
   }
-  res.writeHead(result.status, contentType);
-  res.end();
+  sendEmptyError(res, result);
 };
 const validateUUID = (id: string, res: ServerResponse<IncomingMessage>) => {
   if (!uuidRegex.test(id)) {
@@ -37,6 +42,12 @@ const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promis
     res.end(JSON.stringify(user));
     return;
   }
+
+  if (result.status === 404) {
+    responseNotFound(res, id);
+  }
+  sendEmptyError(res, result);
+
 };
 const validateUser = (body: IUser, res: ServerResponse<IncomingMessage>) => {
   const valid = isValidUser(body);
@@ -47,7 +58,9 @@ Valid keys are:
 username: string;
 age: number;
 hobbies: string[];`);
-    return;
+    const error = new Error(`Invalid User parameters: ${body}`);
+    error.name = 'EINBODY';
+    throw error;
   }
 };
 const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<void> => {
@@ -68,12 +81,14 @@ const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
 
 const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
   validateUUID(id, res);
-
   const result = await storageProvider.deleteUser(id);
   if (result.ok) {
-    const user = await result.json() as IUser;
-    res.writeHead(200, contentType);
+    res.writeHead(204, contentType);
     res.end('User deleted successfully.');
+    return;
+  }
+  if (result.status === 404) {
+    responseNotFound(res, id);
     return;
   }
 };
@@ -86,6 +101,10 @@ const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: I
     const user = await result.json() as IUser;
     res.writeHead(200, contentType);
     res.end(JSON.stringify(user));
+    return;
+  }
+  if (result.status === 404) {
+    responseNotFound(res, id);
     return;
   }
 };
