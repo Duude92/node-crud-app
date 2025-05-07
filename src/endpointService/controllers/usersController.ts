@@ -1,7 +1,7 @@
 import {IUser} from "../../shared/models/userModel";
 import {ServerResponse, IncomingMessage} from 'node:http'
 
-class User {}
+// export type EndpointFunctionPair = { [id: string]: (some: string) => Promise<IUser> };
 export type EndpointFunctionPair = { [id: string]: (response: ServerResponse<IncomingMessage>) => void };
 const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
     // await provider get users
