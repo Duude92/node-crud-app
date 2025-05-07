@@ -27,10 +27,22 @@ const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Prom
   res.end(JSON.stringify(body));
 };
 
-
+const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+  const user = users.find(x => x.id === id);
+  if (!user) {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(`User with id ${id} not found.`);
+    return;
+  }
+  const userIdx = users.indexOf(user);
+  users.splice(userIdx, 1);
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end('User deleted successfully.');
+};
 
 export const endpoints: EndpointFunctionPair = {
   'GET': getUsers,
   'GET/id': getUser,
-  'POST': postUser
+  'POST': postUser,
+  'DELETE/id': deleteUser
 };
