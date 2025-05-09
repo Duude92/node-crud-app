@@ -1,6 +1,6 @@
 import { IUser } from '../../shared/models/userModel';
-import { getUser, getUsers } from '../../providers/userStorageProvider';
-import { controller } from './usersController';
+import { getUser, getUsers, postUser } from '../../providers/userStorageProvider';
+import { controller, testingFunctions } from './usersController';
 import { ServerResponse } from 'node:http';
 
 const users: Array<IUser> = [
@@ -14,6 +14,17 @@ const response: ServerResponse = {
   writeHead: jest.fn(),
   end: jest.fn()
 };
+const additionalUserId = '16aafaa5-7cb4-45f7-ac64-784d1ad3e533';
+const additionalUser = { age: 33, hobbies: ['estudiar español'], username: 'Señor tomato' };
+const tableTestCases: unknown[] = [
+  { age: 1, hobbies: [] },
+  { age: 1, username: '' },
+  { hobbies: [], username: '' },
+  { age: 1 },
+  { hobbies: [] },
+  { username: '' },
+  {}
+];
 
 jest.mock('../../providers/userStorageProvider', () => ({
   getUsers: jest.fn(async () => {
@@ -22,22 +33,23 @@ jest.mock('../../providers/userStorageProvider', () => ({
       json: jest.fn()
     };
   }),
-  getUser: jest.fn(async () => {
-
-  })
+  getUser: jest.fn(),
+  postUser: jest.fn()
 }));
 describe('Users controller CRUD tests', () => {
     const controllerString = 'api/users';
     const controllerMethods = controller[controllerString];
     const getUsersMethod = controllerMethods['GET'];
     const getUserMethod = controllerMethods['GET/id'];
+    const postUserMethod = controllerMethods['POST'];
+
     test('Should get all users', async () => {
       (getUsers as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users) });
       await getUsersMethod(response);
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
       expect(response.end).toHaveBeenCalledWith(JSON.stringify(users));
     });
-    test('Should get users by id', async () => {
+    test('Should get user by id', async () => {
       (getUser as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users[0]) });
       await getUserMethod(response, users[0].id);
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
@@ -55,7 +67,23 @@ describe('Users controller CRUD tests', () => {
       expect(response.writeHead).toHaveBeenCalledWith(500, contentType);
       expect(response.end).toHaveBeenCalledWith('Internal Server Error');
     });
-
+    test('Should post user', async () => {
+      const newUser = { ...additionalUser, id: additionalUserId };
+      (postUser as jest.Mock).mockResolvedValueOnce({
+        ok: true, json: () => (newUser)
+      });
+      await postUserMethod(response, additionalUser);
+      expect(response.writeHead).toHaveBeenCalledWith(201, contentType);
+      expect(response.end).toHaveBeenCalledWith(JSON.stringify(newUser));
+    });
+    // test.each(tableTestCases)('Should return false on validating IUser', (testCase) => {
+    //   expect(isValidUser(testCase as IUser)).toBeFalsy();
+    // });
+    test.each(tableTestCases)('Should fail on validating IUser', (testCase) => {
+      expect(() => {
+        testingFunctions.validateUser(testCase as IUser, response);
+      }).toThrow(`Invalid User parameters: ${testCase}`);
+    });
     test('Should fail with EINUUID error', async () => {
       await expect(getUserMethod(response, 'abcdefg')).rejects.toThrow('Invalid UUID: abcdefg');
     });

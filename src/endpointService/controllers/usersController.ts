@@ -117,3 +117,6 @@ export const controller: ApiController = {
     'PUT/id': putUser
   }
 };
+export const testingFunctions = {
+  validateUser
+}
