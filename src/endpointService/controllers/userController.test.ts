@@ -43,6 +43,19 @@ describe('Users controller CRUD tests', () => {
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
       expect(response.end).toHaveBeenCalledWith(JSON.stringify(users[0]));
     });
+    test('Should get 404', async () => {
+      (getUser as jest.Mock).mockResolvedValueOnce({ ok: false, status: 404 });
+      await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351');
+      expect(response.writeHead).toHaveBeenCalledWith(404, contentType);
+      expect(response.end).toHaveBeenCalledWith('User with id 93d898f7-cdab-422a-9778-a0eaa1146351 not found.');
+    });
+    test('Should resend server error', async () => {
+      (getUser as jest.Mock).mockResolvedValueOnce({ ok: false, status: 403 });
+      await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351');
+      expect(response.writeHead).toHaveBeenCalledWith(403, contentType);
+      expect(response.end).toHaveBeenCalled();
+    });
+
     test('Should fail with EINUUID error', async () => {
       await expect(getUserMethod(response, 'abcdefg')).rejects.toThrow('Invalid UUID: abcdefg');
     });

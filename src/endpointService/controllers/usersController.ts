@@ -43,6 +43,7 @@ const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promis
 
   if (result.status === 404) {
     responseNotFound(res, id);
+    return;
   }
   sendEmptyError(res, result);
 
