@@ -7,7 +7,6 @@ import { availableParallelism } from 'node:os';
 import http from 'node:http';
 
 if (cluster.isPrimary) {
-  const parallelism = availableParallelism();
   const parallelism = availableParallelism() - 1;
   const balancerPort = +(process.env.APP_PORT || 3000);
   const appPortBase = balancerPort + 1;
