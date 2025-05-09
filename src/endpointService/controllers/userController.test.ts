@@ -1,5 +1,5 @@
 import { IUser } from '../../shared/models/userModel';
-import { getUser, getUsers, postUser } from '../../providers/userStorageProvider';
+import { getUser, getUsers, postUser, putUser } from '../../providers/userStorageProvider';
 import { controller, testingFunctions } from './usersController';
 import { ServerResponse } from 'node:http';
 
@@ -34,7 +34,8 @@ jest.mock('../../providers/userStorageProvider', () => ({
     };
   }),
   getUser: jest.fn(),
-  postUser: jest.fn()
+  postUser: jest.fn(),
+  putUser: jest.fn(),
 }));
 describe('Users controller CRUD tests', () => {
     const controllerString = 'api/users';
@@ -42,6 +43,7 @@ describe('Users controller CRUD tests', () => {
     const getUsersMethod = controllerMethods['GET'];
     const getUserMethod = controllerMethods['GET/id'];
     const postUserMethod = controllerMethods['POST'];
+    const putUserMethod = controllerMethods['PUT/id'];
 
     test('Should get all users', async () => {
       (getUsers as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users) });
@@ -86,6 +88,16 @@ describe('Users controller CRUD tests', () => {
     });
     test('Should fail with EINUUID error', async () => {
       await expect(getUserMethod(response, 'abcdefg')).rejects.toThrow('Invalid UUID: abcdefg');
+    });
+    test('Should update user', async () => {
+      const initialId = '93d898f7-cdab-422a-9778-a0eaa1146350';
+      const updatedUser = { ...additionalUser, id: initialId };
+      (putUser as jest.Mock).mockResolvedValueOnce({
+        ok: true, json: () => (updatedUser)
+      });
+      await putUserMethod(response, initialId, additionalUser);
+      expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
+      expect(response.end).toHaveBeenCalledWith(JSON.stringify(updatedUser));
     });
   }
 );
