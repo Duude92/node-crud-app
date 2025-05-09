@@ -3,8 +3,8 @@ import { handleRoute } from './endpointRouter';
 import { ApiController } from '../shared/endpointFunctionPair';
 
 export const startServer = (port: number, controller: ApiController) => {
-  const server = createServer({}, (req, res) => {
-    handleRoute(req, res, controller);
+  const server = createServer({}, async (req, res) => {
+    await handleRoute(req, res, controller);
   });
   server.listen(port, () => {
     console.log(`Endpoint server listening on port: ${port}`);
