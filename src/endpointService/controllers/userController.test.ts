@@ -1,5 +1,5 @@
 import { IUser } from '../../shared/models/userModel';
-import { getUsers } from '../../providers/userStorageProvider';
+import { getUser, getUsers } from '../../providers/userStorageProvider';
 import { controller } from './usersController';
 import { ServerResponse } from 'node:http';
 
@@ -21,17 +21,30 @@ jest.mock('../../providers/userStorageProvider', () => ({
       ok: true,
       json: jest.fn()
     };
+  }),
+  getUser: jest.fn(async () => {
+
   })
 }));
 describe('Users controller CRUD tests', () => {
     const controllerString = 'api/users';
-    const controllerMethods =  controller[controllerString];
+    const controllerMethods = controller[controllerString];
     const getUsersMethod = controllerMethods['GET'];
+    const getUserMethod = controllerMethods['GET/id'];
     test('Should get all users', async () => {
       (getUsers as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users) });
       await getUsersMethod(response);
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
       expect(response.end).toHaveBeenCalledWith(JSON.stringify(users));
+    });
+    test('Should get users by id', async () => {
+      (getUser as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users[0]) });
+      await getUserMethod(response, users[0].id);
+      expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
+      expect(response.end).toHaveBeenCalledWith(JSON.stringify(users[0]));
+    });
+    test('Should fail with EINUUID error', async () => {
+      await expect(getUserMethod(response, 'abcdefg')).rejects.toThrow('Invalid UUID: abcdefg');
     });
   }
 );
