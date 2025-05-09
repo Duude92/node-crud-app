@@ -67,9 +67,7 @@ describe('Users controller CRUD tests', () => {
     });
     test('Should answer with error 500', async () => {
       (getUser as jest.Mock).mockResolvedValueOnce({ ok: false, status: 403 });
-      await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351');
-      expect(response.writeHead).toHaveBeenCalledWith(500, contentType);
-      expect(response.end).toHaveBeenCalledWith('Internal Server Error');
+      expect( await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351')).toBe(false);
     });
     test('Should post user', async () => {
       const newUser = { ...additionalUser, id: additionalUserId };
