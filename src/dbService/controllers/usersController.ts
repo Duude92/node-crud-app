@@ -8,20 +8,22 @@ const users: Array<IUser> = [
   { id: '39d5a587-f1f9-41cf-a323-6719587d3b00', age: 23, hobbies: ['espionage'], username: 'AnonymousMan' }
 ];
 
-const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
+const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<boolean> => {
   // await provider get users
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(users));
+  return true;
 };
-const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
   const user = users.find(x => x.id === id);
   if (!user) {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end();
-    return;
+    return true;
   }
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(user));
+  return true;
 };
 const validateUser = (body: IUser, res: ServerResponse<IncomingMessage>) => {
   const valid = isValidUser(body);
@@ -31,12 +33,13 @@ const validateUser = (body: IUser, res: ServerResponse<IncomingMessage>) => {
     return;
   }
 };
-const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<void> => {
+const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<boolean> => {
   validateUser(body, res);
   body.id = randomUUID().toString();
   users.push(body);
   res.writeHead(201, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(body));
+  return true;
 };
 
 const findUser = (id: string, res: ServerResponse<IncomingMessage>): IUser => {
@@ -55,34 +58,25 @@ const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
   res.end(`User with id ${id} not found.`);
 };
 
-const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
-  try {
+const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
+  const user = findUser(id, res);
+  const userIdx = users.indexOf(user);
 
-    const user = findUser(id, res);
-    const userIdx = users.indexOf(user);
-
-    users.splice(userIdx, 1);
-    res.writeHead(204, { 'Content-Type': 'application/json' });
-    res.end('User deleted successfully.');
-  } catch {
-    return;
-  }
+  users.splice(userIdx, 1);
+  res.writeHead(204, { 'Content-Type': 'application/json' });
+  res.end('User deleted successfully.');
+  return true;
 };
 
-const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<void> => {
-  try {
-    validateUser(body, res);
-
-    const user = findUser(id, res);
-    const userIdx = users.indexOf(user);
-
-    body.id = user.id;
-    users[userIdx] = body;
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(body));
-  } catch {
-    return;
-  }
+const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<boolean> => {
+  validateUser(body, res);
+  const user = findUser(id, res);
+  const userIdx = users.indexOf(user);
+  body.id = user.id;
+  users[userIdx] = body;
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(body));
+  return true;
 };
 
 export const controller: ApiController = {
