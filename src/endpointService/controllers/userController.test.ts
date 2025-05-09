@@ -1,5 +1,5 @@
 import { IUser } from '../../shared/models/userModel';
-import { getUser, getUsers, postUser, putUser } from '../../providers/userStorageProvider';
+import { deleteUser, getUser, getUsers, postUser, putUser } from '../../providers/userStorageProvider';
 import { controller, testingFunctions } from './usersController';
 import { ServerResponse } from 'node:http';
 
@@ -36,6 +36,7 @@ jest.mock('../../providers/userStorageProvider', () => ({
   getUser: jest.fn(),
   postUser: jest.fn(),
   putUser: jest.fn(),
+  deleteUser: jest.fn()
 }));
 describe('Users controller CRUD tests', () => {
     const controllerString = 'api/users';
@@ -44,6 +45,7 @@ describe('Users controller CRUD tests', () => {
     const getUserMethod = controllerMethods['GET/id'];
     const postUserMethod = controllerMethods['POST'];
     const putUserMethod = controllerMethods['PUT/id'];
+    const deleteUserMethod = controllerMethods['DELETE/id'];
 
     test('Should get all users', async () => {
       (getUsers as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (users) });
@@ -98,6 +100,14 @@ describe('Users controller CRUD tests', () => {
       await putUserMethod(response, initialId, additionalUser);
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
       expect(response.end).toHaveBeenCalledWith(JSON.stringify(updatedUser));
+    });
+    test('Should remove second users item', async () => {
+      const resultArray = [...users];
+      resultArray.splice(0, 1);
+      (deleteUser as jest.Mock).mockResolvedValueOnce({ ok: true, json: () => (resultArray) });
+      await deleteUserMethod(response, users[1].id);
+      expect(response.writeHead).toHaveBeenCalledWith(204, contentType);
+      expect(response.end).toHaveBeenCalledWith('User deleted successfully.');
     });
   }
 );
