@@ -7,8 +7,8 @@ const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-
 const contentType = { 'Content-Type': 'application/json' };
 
 function sendEmptyError(res: ServerResponse<IncomingMessage>, result: Response) {
-  res.writeHead(result.status, contentType);
-  res.end();
+  res.writeHead(500, contentType);
+  res.end('Internal Server Error');
 }
 
 const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
