@@ -6,21 +6,17 @@ import * as storageProvider from '../../providers/userStorageProvider';
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 const contentType = { 'Content-Type': 'application/json' };
 
-function sendEmptyError(res: ServerResponse<IncomingMessage>, result: Response) {
-  res.writeHead(500, contentType);
-  res.end('Internal Server Error');
-}
 
-const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<void> => {
+const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<boolean> => {
   // await provider get users
   const result = await storageProvider.getUsers();
   if (result.ok) {
     const users = await result.json() as IUser[];
     res.writeHead(200, contentType);
     res.end(JSON.stringify(users));
-    return;
+    return true;
   }
-  sendEmptyError(res, result);
+  return false;
 };
 const validateUUID = (id: string, res: ServerResponse<IncomingMessage>) => {
   if (!uuidRegex.test(id)) {
@@ -31,22 +27,21 @@ const validateUUID = (id: string, res: ServerResponse<IncomingMessage>) => {
     throw error;
   }
 };
-const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
   validateUUID(id, res);
   const result = await storageProvider.getUser(id);
   if (result.ok) {
     const user = await result.json() as IUser;
     res.writeHead(200, contentType);
     res.end(JSON.stringify(user));
-    return;
+    return true;
   }
 
   if (result.status === 404) {
     responseNotFound(res, id);
-    return;
+    return true;
   }
-  sendEmptyError(res, result);
-
+  return false;
 };
 const validateUser = (body: IUser, res: ServerResponse<IncomingMessage>) => {
   const valid = isValidUser(body);
@@ -62,15 +57,16 @@ hobbies: string[];`);
     throw error;
   }
 };
-const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<void> => {
+const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<boolean> => {
   validateUser(body, res);
   const result = await storageProvider.postUser(body);
   if (result.ok) {
     const user = await result.json() as IUser;
     res.writeHead(201, contentType);
     res.end(JSON.stringify(user));
-    return;
+    return true;
   }
+  return false;
 };
 
 const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
@@ -78,21 +74,22 @@ const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
   res.end(`User with id ${id} not found.`);
 };
 
-const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<void> => {
+const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
   validateUUID(id, res);
   const result = await storageProvider.deleteUser(id);
   if (result.ok) {
     res.writeHead(204, contentType);
     res.end('User deleted successfully.');
-    return;
+    return true;
   }
   if (result.status === 404) {
     responseNotFound(res, id);
-    return;
+    return true;
   }
+  return false;
 };
 
-const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<void> => {
+const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<boolean> => {
   validateUUID(id, res);
   validateUser(body, res);
   const result = await storageProvider.putUser(id, body);
@@ -100,12 +97,13 @@ const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: I
     const user = await result.json() as IUser;
     res.writeHead(200, contentType);
     res.end(JSON.stringify(user));
-    return;
+    return true;
   }
   if (result.status === 404) {
     responseNotFound(res, id);
-    return;
+    return true;
   }
+  return false;
 };
 
 export const controller: ApiController = {
@@ -119,4 +117,4 @@ export const controller: ApiController = {
 };
 export const testingFunctions = {
   validateUser
-}
+};

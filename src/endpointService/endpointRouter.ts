@@ -1,7 +1,11 @@
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { ApiController } from '../shared/endpointFunctionPair';
 import { requestBody } from './bodyRequestUtil';
-import { IUser } from '../shared/models/userModel';
+
+function sendEmptyError(res: ServerResponse<IncomingMessage>) {
+  res.writeHead(500, { 'Content-Type': 'application/json' });
+  res.end('Internal Server Error');
+}
 
 export const handleRoute = async (request: IncomingMessage, response: ServerResponse<IncomingMessage>, controller: ApiController) => {
   try {
@@ -30,7 +34,10 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
       parameters.push(id);
     if (parameter)
       parameters.push(parameter);
-    await fn(response, ...parameters);
+    const result = await fn(response, ...parameters);
+    if (!result) {
+      sendEmptyError(response);
+    }
   } catch (error) {
     console.error(error);
   }
