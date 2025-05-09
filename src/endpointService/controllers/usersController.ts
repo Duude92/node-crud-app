@@ -1,9 +1,7 @@
 import { isValidUser, IUser } from '../../shared/models/userModel';
 import { ServerResponse, IncomingMessage } from 'node:http';
 import { ApiController } from '../../shared/endpointFunctionPair';
-import { randomUUID } from 'node:crypto';
 import * as storageProvider from '../../providers/userStorageProvider';
-import { requestBody } from '../bodyRequestUtil';
 
 const uuidRegex = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
 const contentType = { 'Content-Type': 'application/json' };
