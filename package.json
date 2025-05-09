@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "test": "jest",
     "start:dev": "nodemon --exec ts-node src/index.ts",
     "start:prod": "tsc && node dist/index.js",
     "start:dev:multi": "nodemon --exec ts-node src/loadBalancer.ts",
@@ -14,7 +15,8 @@
     "dotenv": "^16.5.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "jest": "^29.7.0"
   },
   "private": true,
   "license": "MIT"
