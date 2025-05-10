@@ -7,7 +7,6 @@ import { getUserStorage } from '../storage';
 const users = () => getUserStorage().data;
 
 const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<boolean> => {
-  // await provider get users
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(users()));
   return true;
@@ -23,16 +22,7 @@ const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promis
   res.end(JSON.stringify(user));
   return true;
 };
-const validateUser = (body: IUser, res: ServerResponse<IncomingMessage>) => {
-  const valid = isValidUser(body);
-  if (!valid) {
-    res.writeHead(400, { 'Content-Type': 'application/json' });
-    res.end();
-    return;
-  }
-};
 const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<boolean> => {
-  validateUser(body, res);
   body.id = randomUUID().toString();
   users().push(body);
   res.writeHead(201, { 'Content-Type': 'application/json' });
@@ -67,7 +57,6 @@ const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Pro
 };
 
 const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<boolean> => {
-  validateUser(body, res);
   const user = findUser(id, res);
   const userIdx = users().indexOf(user);
   body.id = user.id;
