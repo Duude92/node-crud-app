@@ -3,8 +3,12 @@ import { ApiController } from '../shared/endpointFunctionPair';
 import { requestBody } from './bodyRequestUtil';
 
 function sendEmptyError(res: ServerResponse<IncomingMessage>) {
-  res.writeHead(500, { 'Content-Type': 'application/json' });
-  res.end('Internal Server Error');
+  sendResponse(res, 500, 'Internal Server Error');
+}
+
+function sendResponse(res: ServerResponse<IncomingMessage>, code: number, message: string) {
+  res.writeHead(code, { 'Content-Type': 'application/json' });
+  res.end(message);
 }
 
 export const handleRoute = async (request: IncomingMessage, response: ServerResponse<IncomingMessage>, controller: ApiController) => {
@@ -16,8 +20,7 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
     const controllerPath = reqPath.shift() as string;
     const endpoints = controller[`${pathApi}/${controllerPath}`];
     if (!endpoints) {
-      response.writeHead(404, { 'Content-Type': 'application/json' });
-      response.end('Requested resource is not found.');
+      sendResponse(response, 404, 'Requested resource is not found.');
       return;
     }
     const id = reqPath.shift() as string;
@@ -39,6 +42,6 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
       sendEmptyError(response);
     }
   } catch (error) {
-    console.error(error);
+    sendResponse(response, 405, 'Method Not Allowed');
   }
 };
