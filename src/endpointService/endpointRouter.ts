@@ -17,7 +17,7 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
     const endpoints = controller[`${pathApi}/${controllerPath}`];
     if (!endpoints) {
       response.writeHead(404, { 'Content-Type': 'application/json' });
-      response.end(`Requested resource is not found.`);
+      response.end('Requested resource is not found.');
       return;
     }
     const id = reqPath.shift() as string;
