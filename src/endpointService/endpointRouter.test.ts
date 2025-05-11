@@ -13,27 +13,30 @@ const response: ServerResponse = {
 const contentType = { 'Content-Type': 'application/json' };
 
 
+function expectResponse(code: number, message: string) {
+  expect(response.writeHead).toHaveBeenCalledWith(code, contentType);
+  expect(response.end).toHaveBeenCalledWith(message);
+}
+
 describe('Tests for endpoint router', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  // test('This should test GET/id success route handling', async () => {
-  //   const request: unknown = {
-  //     method: 'GET',
-  //     url: '/api/users/1'
-  //   };
-  //   (getUser as jest.Mock).mockResolvedValueOnce(true);
-  //   await handleRoute(request as IncomingMessage, response as ServerResponse, controller);
-  //   expect(getUser).toHaveBeenCalledWith(response as ServerResponse, '1');
-  // });
+  test('This should response response 405', async () => {
+    const request: unknown = {
+      method: 'PATCH',
+      url: '/api/users/1'
+    };
+    await handleRoute(request as IncomingMessage, response as ServerResponse, controller);
+    expectResponse(405, 'Method Not Allowed');
+  });
   test('This should response response 404', async () => {
     const request: unknown = {
       method: 'GET',
       url: '/api/users/1'
     };
     await handleRoute(request as IncomingMessage, response as ServerResponse, [] as unknown as ApiController);
-    expect(response.writeHead).toHaveBeenCalledWith(404, contentType);
-    expect(response.end).toHaveBeenCalledWith('Requested resource is not found.');
+    expectResponse(404, 'Requested resource is not found.');
   });
   test('This should test POST/id success route handling', async () => {
     const request: unknown = {
@@ -56,7 +59,6 @@ describe('Tests for endpoint router', () => {
     };
     (getUser as jest.Mock).mockResolvedValueOnce(false);
     await handleRoute(request as IncomingMessage, response as ServerResponse, controller);
-    expect(response.writeHead).toHaveBeenCalledWith(500, contentType);
-    expect(response.end).toHaveBeenCalledWith('Internal Server Error');
+    expectResponse(500, 'Internal Server Error');
   });
 });
