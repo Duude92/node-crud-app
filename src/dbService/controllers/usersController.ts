@@ -70,3 +70,6 @@ export const controller: ApiController = {
     'PUT/id': putUser
   }
 };
+export {
+  getUser,
+}
