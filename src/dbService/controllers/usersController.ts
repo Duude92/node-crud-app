@@ -12,12 +12,7 @@ const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<boolean> 
   return true;
 };
 const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
-  const user = users().find(x => x.id === id);
-  if (!user) {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end();
-    return true;
-  }
+  const user = findUser(id, res);
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(user));
   return true;
