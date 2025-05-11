@@ -17,21 +17,12 @@ const response: ServerResponse = {
 };
 const additionalUserId = '16aafaa5-7cb4-45f7-ac64-784d1ad3e533';
 const additionalUser = { age: 33, hobbies: ['estudiar español'], username: 'Señor tomato' };
-const tableTestCases: unknown[] = [
-  { age: 1, hobbies: [] },
-  { age: 1, username: '' },
-  { hobbies: [], username: '' },
-  { age: 1 },
-  { hobbies: [] },
-  { username: '' },
-  {}
-];
 
 jest.mock('../storage', () => ({
   getUserStorage: jest.fn()
 }));
 jest.mock('node:crypto', () => ({
-    randomUUID: jest.fn()
+  randomUUID: jest.fn()
 }));
 
 describe('DB Users controller CRUD tests', () => {
@@ -45,9 +36,9 @@ describe('DB Users controller CRUD tests', () => {
     beforeEach(() => {
       (getUserStorage as jest.Mock).mockImplementation(jest.fn(() => ({ data: myUsers })));
     });
-    afterEach(()=>{
+    afterEach(() => {
       jest.restoreAllMocks();
-    })
+    });
 
     test('Should get all myUsers', async () => {
       await expect(getUsersMethod(response)).resolves.toBeTruthy();
@@ -59,10 +50,11 @@ describe('DB Users controller CRUD tests', () => {
       expect(response.writeHead).toHaveBeenCalledWith(200, contentType);
       expect(response.end).toHaveBeenCalledWith(JSON.stringify(myUsers[0]));
     });
-    test('Should get 404', async () => {
-      await expect(getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351')).resolves.toBeTruthy();
+    test('Should fail with 404 error', async () => {
+      const id = '93d898f7-cdab-422a-9778-a0eaa1146351';
+      await expect(getUserMethod(response, id)).rejects.toThrow('User not found!');
       expect(response.writeHead).toHaveBeenCalledWith(404, contentType);
-      expect(response.end).toHaveBeenCalled();
+      expect(response.end).toHaveBeenCalledWith(`User with id ${id} not found.`);
     });
     test('Should post user', async () => {
       const newUser = { ...additionalUser, id: additionalUserId };
