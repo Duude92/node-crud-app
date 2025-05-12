@@ -1,6 +1,10 @@
 import { IUser } from '../shared/models/userModel';
 
-const dbUrl = 'http://localhost:5050';
+let dbUrl = 'http://localhost:5050';
+
+const setDbUrl = (url: string) => {
+  dbUrl = url;
+};
 
 const fetchData = async (path: string, method = 'GET', userData: IUser | undefined = undefined): Promise<Response> => {
   const options: RequestInit = { method: method };
@@ -32,5 +36,6 @@ export {
   getUsers,
   postUser,
   deleteUser,
-  putUser
+  putUser,
+  setDbUrl
 };

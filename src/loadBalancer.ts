@@ -5,15 +5,18 @@ import { initDbService } from './dbService/init';
 import cluster from 'node:cluster';
 import { availableParallelism } from 'node:os';
 import http from 'node:http';
+import { setDbUrl } from './providers/userStorageProvider';
+
+dotenv.config();
+const dbServerPort = parseInt(process.env.DB_PORT || '') || 5050;
+setDbUrl(`http://localhost:${dbServerPort}`);
 
 export const startCluster = () => {
   if (cluster.isPrimary) {
-    dotenv.config();
 
     const parallelism = availableParallelism() - 1;
     // const parallelism = 3;
     const balancerPort = parseInt(process.env.APP_PORT || '') || 3000;
-    const dbServerPort = parseInt(process.env.DB_PORT || '') || 5050;
     const appPortBase = balancerPort + 1;
     const appPorts: Array<number> = [];
     initDbService(dbServerPort);
