@@ -29,6 +29,7 @@ export const startCluster = () => {
       };
       current = (++current) % parallelism;
       const proxyReq = http.request(options, (proxyRes) => {
+        proxyRes.headers["process-server"] = targetPort.toString();
         console.log(`Request routed to ${targetPort} server`);
         res.writeHead(proxyRes.statusCode as number, proxyRes.headers);
         proxyRes.pipe(res, { end: true });
