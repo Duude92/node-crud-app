@@ -7,6 +7,6 @@ export const startServer = (port: number, controller: ApiController) => {
     await handleRoute(req, res, controller);
   });
   server.listen(port, () => {
-    console.log(`Endpoint server listening on port: ${port}`);
+    console.log(`HTTP server listening on port: ${port}`);
   });
 };

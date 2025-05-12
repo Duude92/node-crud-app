@@ -52,7 +52,7 @@ describe('DB Users controller CRUD tests', () => {
     });
     test('Should fail with 404 error', async () => {
       const id = '93d898f7-cdab-422a-9778-a0eaa1146351';
-      await expect(getUserMethod(response, id)).rejects.toThrow('User not found!');
+      await expect(getUserMethod(response, id)).resolves.toBeTruthy();
       expect(response.writeHead).toHaveBeenCalledWith(404, contentType);
       expect(response.end).toHaveBeenCalledWith(`User with id ${id} not found.`);
     });

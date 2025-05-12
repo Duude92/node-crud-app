@@ -67,7 +67,7 @@ describe('Users controller CRUD tests', () => {
     });
     test('Should answer with error 500', async () => {
       (getUser as jest.Mock).mockResolvedValueOnce({ ok: false, status: 403 });
-      expect( await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351')).toBe(false);
+      expect(await getUserMethod(response, '93d898f7-cdab-422a-9778-a0eaa1146351')).toBe(false);
     });
     test('Should post user', async () => {
       const newUser = { ...additionalUser, id: additionalUserId };
@@ -82,12 +82,18 @@ describe('Users controller CRUD tests', () => {
     //   expect(isValidUser(testCase as IUser)).toBeFalsy();
     // });
     test.each(tableTestCases)('Should fail on validating IUser', (testCase) => {
-      expect(() => {
-        testingFunctions.validateUser(testCase as IUser, response);
-      }).toThrow(`Invalid User parameters: ${testCase}`);
+      expect(testingFunctions.validateUser(testCase as IUser, response)).toBeFalsy();
+      expect(response.writeHead).toHaveBeenCalledWith(400, contentType);
+      expect(response.end).toHaveBeenCalledWith(`Object missing required fields.
+Valid keys are:
+username: string;
+age: number;
+hobbies: string[];`);
     });
     test('Should fail with EINUUID error', async () => {
-      await expect(getUserMethod(response, 'abcdefg')).rejects.toThrow('Invalid UUID: abcdefg');
+      await expect(getUserMethod(response, 'abcdefg')).resolves.toBeTruthy();
+      expect(response.writeHead).toHaveBeenCalledWith(400, contentType);
+      expect(response.end).toHaveBeenCalledWith("User id \"abcdefg\" is not valid UUIDv4 record.");
     });
     test('Should update user', async () => {
       const initialId = '93d898f7-cdab-422a-9778-a0eaa1146350';

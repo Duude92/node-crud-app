@@ -1,4 +1,4 @@
-import { isValidUser, IUser } from '../../shared/models/userModel';
+import { IUser } from '../../shared/models/userModel';
 import { ServerResponse, IncomingMessage } from 'node:http';
 import { ApiController } from '../../shared/endpointFunctionPair';
 import { randomUUID } from 'node:crypto';
@@ -13,6 +13,7 @@ const getUsers = async (res: ServerResponse<IncomingMessage>): Promise<boolean> 
 };
 const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
   const user = findUser(id, res);
+  if(!user) return true;
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(user));
   return true;
@@ -25,13 +26,11 @@ const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Prom
   return true;
 };
 
-const findUser = (id: string, res: ServerResponse<IncomingMessage>): IUser => {
+const findUser = (id: string, res: ServerResponse<IncomingMessage>): IUser | undefined => {
   const user = users().find(x => x.id === id);
   if (!user) {
     responseNotFound(res, id);
-    const error = new Error('User not found!');
-    error.name = 'ENOTFOUND';
-    throw error;
+    return undefined;
   }
   return user;
 };
@@ -43,6 +42,7 @@ const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
 
 const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
   const user = findUser(id, res);
+  if(!user) return true;
   const userIdx = users().indexOf(user);
 
   users().splice(userIdx, 1);
@@ -53,6 +53,7 @@ const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Pro
 
 const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<boolean> => {
   const user = findUser(id, res);
+  if(!user) return true;
   const userIdx = users().indexOf(user);
   body.id = user.id;
   users()[userIdx] = body;

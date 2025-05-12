@@ -24,11 +24,12 @@ const validateUUID = (id: string, res: ServerResponse<IncomingMessage>) => {
     res.end(`User id "${id}" is not valid UUIDv4 record.`);
     const error = new Error(`Invalid UUID: ${id}`);
     error.name = 'EINUUID';
-    throw error;
+    return false;
   }
+  return true;
 };
 const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
-  validateUUID(id, res);
+  if (!validateUUID(id, res)) return true;
   const result = await storageProvider.getUser(id);
   if (result.ok) {
     const user = await result.json() as IUser;
@@ -36,7 +37,6 @@ const getUser = async (res: ServerResponse<IncomingMessage>, id: string): Promis
     res.end(JSON.stringify(user));
     return true;
   }
-
   if (result.status === 404) {
     responseNotFound(res, id);
     return true;
@@ -54,11 +54,12 @@ age: number;
 hobbies: string[];`);
     const error = new Error(`Invalid User parameters: ${body}`);
     error.name = 'EINBODY';
-    throw error;
+    return false;
   }
+  return true;
 };
 const postUser = async (res: ServerResponse<IncomingMessage>, body: IUser): Promise<boolean> => {
-  validateUser(body, res);
+  if(!validateUser(body, res)) return true;
   const result = await storageProvider.postUser(body);
   if (result.ok) {
     const user = await result.json() as IUser;
@@ -75,7 +76,7 @@ const responseNotFound = (res: ServerResponse<IncomingMessage>, id: string) => {
 };
 
 const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Promise<boolean> => {
-  validateUUID(id, res);
+  if (!validateUUID(id, res)) return true;
   const result = await storageProvider.deleteUser(id);
   if (result.ok) {
     res.writeHead(204, contentType);
@@ -90,8 +91,8 @@ const deleteUser = async (res: ServerResponse<IncomingMessage>, id: string): Pro
 };
 
 const putUser = async (res: ServerResponse<IncomingMessage>, id: string, body: IUser): Promise<boolean> => {
-  validateUUID(id, res);
-  validateUser(body, res);
+  if (!validateUUID(id, res)) return true;
+  if(!validateUser(body, res)) return true;
   const result = await storageProvider.putUser(id, body);
   if (result.ok) {
     const user = await result.json() as IUser;
