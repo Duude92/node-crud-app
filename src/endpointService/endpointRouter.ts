@@ -32,6 +32,10 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
     }
     // Should contain METHOD{/?{parameter?}}
     const fn = endpoints[endpoint];
+    if (!fn) {
+      sendResponse(response, 405, 'Method Not Allowed');
+      return;
+    }
     const parameters: any[] = [];
     if (id)
       parameters.push(id);
@@ -42,6 +46,6 @@ export const handleRoute = async (request: IncomingMessage, response: ServerResp
       sendEmptyError(response);
     }
   } catch (error) {
-    sendResponse(response, 405, 'Method Not Allowed');
+    sendEmptyError(response);
   }
 };
