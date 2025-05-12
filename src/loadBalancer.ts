@@ -8,13 +8,15 @@ import http from 'node:http';
 
 export const startCluster = () => {
   if (cluster.isPrimary) {
+    dotenv.config();
+
     const parallelism = availableParallelism() - 1;
     // const parallelism = 3;
-    const balancerPort = +(process.env.APP_PORT || 3000);
+    const balancerPort = parseInt(process.env.APP_PORT || '') || 3000;
+    const dbServerPort = parseInt(process.env.DB_PORT || '') || 5050;
     const appPortBase = balancerPort + 1;
     const appPorts: Array<number> = [];
-    dotenv.config();
-    initDbService(+(process.env.DB_PORT || 5050));
+    initDbService(dbServerPort);
 // Default behaviour is 3000 port
 
     let current = 0;
@@ -29,7 +31,7 @@ export const startCluster = () => {
       };
       current = (++current) % parallelism;
       const proxyReq = http.request(options, (proxyRes) => {
-        proxyRes.headers["process-server"] = targetPort.toString();
+        proxyRes.headers['process-server'] = targetPort.toString();
         console.log(`Request routed to ${targetPort} server`);
         res.writeHead(proxyRes.statusCode as number, proxyRes.headers);
         proxyRes.pipe(res, { end: true });
